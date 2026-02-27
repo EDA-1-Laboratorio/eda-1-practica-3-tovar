@@ -8,31 +8,45 @@
 #define CARTAS_COMUNITARIAS 5
 
 // Definición de los palos y los valores de las cartas
-typedef enum { TREBOLES, ESPADAS, CORAZONES, DIAMANTES } Palo;
-const char* nombres_palos[] = {"Treboles", "Espadas", "Corazones", "Diamantes"};
+#define TREBOLES 0
+#define ESPADAS 1
+#define CORAZONES 2
+#define DIAMANTES 3
 
-typedef enum { AS = 1, DOS, TRES, CUATRO, CINCO, SEIS, SIETE, OCHO, NUEVE, DIEZ, J, Q, K } Valor;
-const char* nombres_valores[] = {"", "As", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+// Definición de los valores de las cartas
+#define AS 1
+#define DOS 2
+#define TRES 3
+#define CUATRO 4
+#define CINCO 5
+#define SEIS 6
+#define SIETE 7
+#define OCHO 8
+#define NUEVE 9
+#define DIEZ 10
+#define J 11
+#define Q 12
+#define K 13
 
 // Estructura de una carta
 typedef struct {
-    Valor valor;
-    Palo palo;
+    int valor; // Valor de la carta (1-13)
+    int palo;  // Palo de la carta (0=Treboles, 1=Espadas, 2=Corazones, 3=Diamantes)
 } Carta;
 
 // Estructura de la baraja
 typedef struct {
     Carta cartas[NUM_CARTAS];
-    int indice;  // Indica el siguiente lugar disponible en la baraja
+    int indice; // Indica el siguiente lugar disponible en la baraja
 } Baraja;
 
-// Estructura para los jugadores
+// Estructura de un jugador
 typedef struct {
-    Carta cartas_jugador[CARTAS_POR_JUGADOR];
-    int fichas;
+    Carta cartas_jugador[CARTAS_POR_JUGADOR]; // Cartas del jugador
+    int fichas; // Fichas del jugador
 } Jugador;
 
-// Funciones para el manejo de la baraja
+// Funciones para manejar la baraja
 void inicializar_baraja(Baraja* baraja);
 void barajar(Baraja* baraja);
 Carta repartir_carta(Baraja* baraja);
@@ -46,7 +60,7 @@ void cuarta_ronda(Jugador jugadores[], Baraja* baraja);
 // Función para determinar el ganador
 int determinar_ganador(Jugador jugadores[], Carta cartas_comunitarias[]);
 
-// Función para imprimir las cartas
+// Funciones de impresión
 void imprimir_carta(Carta carta);
 void imprimir_cartas_jugador(Jugador jugador);
 
@@ -86,8 +100,8 @@ int main() {
 void inicializar_baraja(Baraja* baraja) {
     baraja->indice = 0;
     for (int i = 0; i < NUM_CARTAS; i++) {
-        baraja->cartas[i].valor = (Valor)((i % 13) + 1);
-        baraja->cartas[i].palo = (Palo)(i / 13);
+        baraja->cartas[i].valor = (i % 13) + 1;       // Asigna valores de 1 a 13
+        baraja->cartas[i].palo = i / 13;              // Asigna palo 0-3 (Treboles, Espadas, Corazones, Diamantes)
     }
 }
 
@@ -156,6 +170,8 @@ int determinar_ganador(Jugador jugadores[], Carta cartas_comunitarias[]) {
 
 // Funciones para imprimir las cartas
 void imprimir_carta(Carta carta) {
+    const char* nombres_valores[] = {"", "As", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+    const char* nombres_palos[] = {"Treboles", "Espadas", "Corazones", "Diamantes"};
     printf("%s de %s ", nombres_valores[carta.valor], nombres_palos[carta.palo]);
 }
 
