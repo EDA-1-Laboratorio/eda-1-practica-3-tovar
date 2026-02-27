@@ -1,1 +1,167 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
+#define NUM_CARTAS 52
+#define NUM_JUGADORES 2
+#define CARTAS_POR_JUGADOR 2
+#define CARTAS_COMUNITARIAS 5
+
+// Definición de los palos y los valores de las cartas
+typedef enum { TREBOLES, ESPADAS, CORAZONES, DIAMANTES } Palo;
+const char* nombres_palos[] = {"Treboles", "Espadas", "Corazones", "Diamantes"};
+
+typedef enum { AS = 1, DOS, TRES, CUATRO, CINCO, SEIS, SIETE, OCHO, NUEVE, DIEZ, J, Q, K } Valor;
+const char* nombres_valores[] = {"", "As", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+
+// Estructura de una carta
+typedef struct {
+    Valor valor;
+    Palo palo;
+} Carta;
+
+// Estructura de la baraja
+typedef struct {
+    Carta cartas[NUM_CARTAS];
+    int indice;  // Indica el siguiente lugar disponible en la baraja
+} Baraja;
+
+// Estructura para los jugadores
+typedef struct {
+    Carta cartas_jugador[CARTAS_POR_JUGADOR];
+    int fichas;
+} Jugador;
+
+// Funciones para el manejo de la baraja
+void inicializar_baraja(Baraja* baraja);
+void barajar(Baraja* baraja);
+Carta repartir_carta(Baraja* baraja);
+
+// Funciones para las rondas del juego
+void primera_ronda(Jugador jugadores[], Baraja* baraja);
+void segunda_ronda(Jugador jugadores[], Baraja* baraja);
+void tercera_ronda(Jugador jugadores[], Baraja* baraja);
+void cuarta_ronda(Jugador jugadores[], Baraja* baraja);
+
+// Función para determinar el ganador
+int determinar_ganador(Jugador jugadores[], Carta cartas_comunitarias[]);
+
+// Función para imprimir las cartas
+void imprimir_carta(Carta carta);
+void imprimir_cartas_jugador(Jugador jugador);
+
+int main() {
+    srand(time(NULL));
+
+    // Crear la baraja
+    Baraja baraja;
+    inicializar_baraja(&baraja);
+    barajar(&baraja);
+
+    // Inicializar jugadores
+    Jugador jugadores[NUM_JUGADORES] = { { .fichas = 1000 }, { .fichas = 1000 } };
+
+    // Iniciar el juego
+    printf("¡Comienza el juego!\n");
+
+    // Primera ronda
+    primera_ronda(jugadores, &baraja);
+    // Segunda ronda
+    segunda_ronda(jugadores, &baraja);
+    // Tercera ronda
+    tercera_ronda(jugadores, &baraja);
+    // Cuarta ronda
+    cuarta_ronda(jugadores, &baraja);
+
+    // Determinar el ganador
+    Carta cartas_comunitarias[CARTAS_COMUNITARIAS];
+    int ganador = determinar_ganador(jugadores, cartas_comunitarias);
+
+    printf("El ganador es el jugador %d\n", ganador + 1);
+
+    return 0;
+}
+
+// Funciones de la baraja
+void inicializar_baraja(Baraja* baraja) {
+    baraja->indice = 0;
+    for (int i = 0; i < NUM_CARTAS; i++) {
+        baraja->cartas[i].valor = (Valor)((i % 13) + 1);
+        baraja->cartas[i].palo = (Palo)(i / 13);
+    }
+}
+
+void barajar(Baraja* baraja) {
+    for (int i = 0; i < NUM_CARTAS; i++) {
+        int j = rand() % NUM_CARTAS;
+        Carta temp = baraja->cartas[i];
+        baraja->cartas[i] = baraja->cartas[j];
+        baraja->cartas[j] = temp;
+    }
+}
+
+Carta repartir_carta(Baraja* baraja) {
+    return baraja->cartas[baraja->indice++];
+}
+
+// Funciones para las rondas
+void primera_ronda(Jugador jugadores[], Baraja* baraja) {
+    printf("\nPrimera ronda:\n");
+    for (int i = 0; i < NUM_JUGADORES; i++) {
+        jugadores[i].cartas_jugador[0] = repartir_carta(baraja);
+        jugadores[i].cartas_jugador[1] = repartir_carta(baraja);
+        printf("Jugador %d recibe: ", i + 1);
+        imprimir_cartas_jugador(jugadores[i]);
+    }
+}
+
+void segunda_ronda(Jugador jugadores[], Baraja* baraja) {
+    printf("\nSegunda ronda:\n");
+    Carta river[3];
+    for (int i = 0; i < 3; i++) {
+        river[i] = repartir_carta(baraja);
+    }
+
+    printf("Cartas comunitarias (River): ");
+    for (int i = 0; i < 3; i++) {
+        imprimir_carta(river[i]);
+    }
+
+    // Aquí puedes preguntar a los jugadores si desean quedarse o retirarse
+}
+
+void tercera_ronda(Jugador jugadores[], Baraja* baraja) {
+    printf("\nTercera ronda:\n");
+    Carta carta_extra = repartir_carta(baraja);
+    printf("Carta comunitaria adicional: ");
+    imprimir_carta(carta_extra);
+
+    // Aquí puedes preguntar a los jugadores si desean quedarse o retirarse
+}
+
+void cuarta_ronda(Jugador jugadores[], Baraja* baraja) {
+    printf("\nCuarta ronda:\n");
+    Carta carta_extra = repartir_carta(baraja);
+    printf("Carta comunitaria final: ");
+    imprimir_carta(carta_extra);
+
+    // Aquí no hace falta preguntar a los jugadores, ya que el juego concluye
+}
+
+// Función para determinar el ganador (por simplicidad, esta parte debe expandirse)
+int determinar_ganador(Jugador jugadores[], Carta cartas_comunitarias[]) {
+    // Implementar la lógica de comparación de manos (para simplificar no se implementa aquí)
+    return 0;  // Retornar el índice del ganador
+}
+
+// Funciones para imprimir las cartas
+void imprimir_carta(Carta carta) {
+    printf("%s de %s ", nombres_valores[carta.valor], nombres_palos[carta.palo]);
+}
+
+void imprimir_cartas_jugador(Jugador jugador) {
+    for (int i = 0; i < CARTAS_POR_JUGADOR; i++) {
+        imprimir_carta(jugador.cartas_jugador[i]);
+    }
+    printf("\n");
+}
